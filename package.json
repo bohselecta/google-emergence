@@ -1,14 +1,15 @@
 {
-  "name": "google-skills-aquisition-board",
-  "version": "0.2.0",
+  "name": "google-emergence",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Google Emergence: An Enterprise Skills & Capability Acquisition Board for Google Workspace & Gemini Enterprise. Synthetic demonstration.",
+  "description": "Google Emergence: The world view of human capability. Objective, criterion-referenced comparative distributions, Becoming Index (0-1000), contextual cohorts, and trajectory tracking.",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/domain.test.mjs",
-    "check": "npm test && npm run build",
+    "test:browser": "node tests/browser_qa.mjs",
+    "check": "npm test && npm run build && npm run test:browser",
     "preview": "node scripts/serve.mjs dist"
   },
   "engines": {

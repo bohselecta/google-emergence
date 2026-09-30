@@ -18,7 +18,7 @@ const docs = Object.fromEntries(
 
 const domain = (await readFile('src/domain.js', 'utf8')).replace(/^export /gm, '');
 const app = (await readFile('src/app.js', 'utf8'))
-  .replace(/^import .*\n/, '')
+  .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/domain\.js['"];?\s*/m, '')
   .replaceAll('./public/mark.svg', mark);
 
 const bundled = `window.EMERGENCE_DOCS = ${JSON.stringify(docs).replaceAll('<', '\\u003c')};\n${domain}\n${app}`;

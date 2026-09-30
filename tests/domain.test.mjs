@@ -21,7 +21,25 @@ import {
   MIN_COHORT,
   emergenceSessions,
   sessionById,
-  launchSession
+  launchSession,
+  // World Comparative System:
+  VERSION,
+  RUBRIC,
+  syntheticPeople,
+  personById,
+  computeBecomingIndex,
+  computeEvidenceCoverage,
+  computeUncertainty,
+  getOpportunitySurface,
+  getActiveUserPerson,
+  getAllPeople,
+  getNeighborhood,
+  comparePeople,
+  getLeaderboard,
+  discoverPatterns,
+  futureDomains,
+  isDimensionSupported,
+  cohortDisclaimer
 } from '../src/domain.js';
 
 test('initial fixture passes its state validator', () => {
@@ -273,6 +291,7 @@ test('sensitive and high-stakes purposes are not supported', () => {
   }
   assert.equal(policyGate('personal-learning'), true);
   assert.equal(policyGate('enterprise-learning'), true);
+  assert.equal(policyGate('comparative-distribution'), true);
 });
 
 test('client implementation makes no fetch, websocket, model or analytics calls', () => {
@@ -311,3 +330,178 @@ test('completing an emergence session and accepting evidence increases capabilit
   assert.ok(updatedEstimate.score !== null);
 });
 
+// ============================================================================
+// NEW TESTS: WORLD COMPARATIVE CAPABILITY SYSTEM REQUIREMENTS
+// ============================================================================
+
+test('rule 1: unknown is not zero; sparse capabilities are withheld from unearned averages', () => {
+  const ap = personById('person-arthur-pendelton');
+  assert.ok(ap, 'Arthur Pendelton fixture exists');
+  // Arthur has systems (3.7) and story (2.2), but research, prototype, creative are null
+  assert.equal(ap.capabilities.independent.research, null);
+  assert.equal(ap.capabilities.independent.prototype, null);
+  assert.equal(ap.capabilities.independent.creative, null);
+
+  const b = computeBecomingIndex(ap.capabilities, 'independent');
+  // Average should be across the 3 measured dimensions (3.7 + 2.2 + 2.1) / 3 = 2.667 -> 667 index points
+  // If null were treated as zero, index would be (3.7 + 2.2 + 2.1) / 6 * 250 = 333 points!
+  assert.ok(b.index > 500, 'Unknown dimensions are not treated as zero in Becoming Index');
+  assert.equal(b.measuredCount, 3);
+  assert.equal(b.totalCount, 6);
+
+  const cov = computeEvidenceCoverage(ap.capabilities, 'independent');
+  assert.equal(cov, 50); // 3 of 6 dimensions measured
+});
+
+test('rule 2: cohort context changes rank without altering raw evidence', () => {
+  const elena = personById('person-elena-rostova');
+  assert.ok(elena);
+  // Raw evidence remains constant
+  const rawSystems = elena.capabilities.independent.systems;
+  assert.equal(rawSystems, 3.9);
+
+  // Percentiles switch based on cohort
+  const pGlobal = elena.cohortPercentiles.global.independent;
+  const pUs = elena.cohortPercentiles.us.independent;
+  const pSwe = elena.cohortPercentiles.swe.independent;
+
+  assert.equal(pGlobal, 94);
+  assert.equal(pUs, 91);
+  assert.equal(pSwe, 93);
+  assert.notEqual(pGlobal, pUs, 'Cohort context changes percentile rank');
+  assert.equal(elena.capabilities.independent.systems, rawSystems, 'Raw evidence remains invariant');
+});
+
+test('rule 3: evidence coverage is distinct from score', () => {
+  // Arthur has Becoming Index ~675 with 50% coverage -> wide uncertainty
+  const ap = personById('person-arthur-pendelton');
+  const covAp = computeEvidenceCoverage(ap.capabilities, 'independent');
+  const uncertAp = computeUncertainty(ap.evidenceCount, covAp);
+
+  // Elena has Becoming Index 842 with 100% coverage -> tight uncertainty
+  const elena = personById('person-elena-rostova');
+  const covElena = computeEvidenceCoverage(elena.capabilities, 'independent');
+  const uncertElena = computeUncertainty(elena.evidenceCount, covElena);
+
+  assert.ok(covElena > covAp, 'Elena has higher evidence coverage');
+  assert.ok(uncertAp.interval > uncertElena.interval, 'Sparse evidence produces wider uncertainty interval');
+  assert.notEqual(uncertAp.tier, uncertElena.tier, 'High and sparse coverage have distinct confidence tiers');
+});
+
+test('rule 4: independent and AI-assisted measurements remain distinguishable', () => {
+  for (const person of syntheticPeople) {
+    const indep = computeBecomingIndex(person.capabilities, 'independent');
+    const assist = computeBecomingIndex(person.capabilities, 'assisted');
+    assert.ok(indep.index !== null, `${person.name} has independent Becoming Index`);
+    assert.ok(assist.index !== null, `${person.name} has assisted Becoming Index`);
+    assert.ok(assist.index >= indep.index, `${person.name} assisted score reflects AI leverage`);
+  }
+});
+
+test('rule 5: synthetic fixtures cannot masquerade as verified real people', () => {
+  assert.ok(syntheticPeople.length >= 20, 'Population contains at least 20 participants');
+  for (const person of syntheticPeople) {
+    assert.equal(person.synthetic, true, `${person.name} must be explicitly synthetic: true`);
+    assert.equal(person.verificationTier, 'synthetic_benchmark_fixture');
+    // Origin country and work country must be present and distinct fields
+    assert.ok(typeof person.originCountry === 'string' && person.originCountry.length > 0);
+    assert.ok(typeof person.workCountry === 'string' && person.workCountry.length > 0);
+  }
+  // Verify international distinction: Elena originated in Estonia, works in United States
+  const elena = personById('person-elena-rostova');
+  assert.equal(elena.originCountry, 'Estonia');
+  assert.equal(elena.workCountry, 'United States');
+  assert.notEqual(elena.originCountry, elena.workCountry);
+});
+
+test('rule 6: comparison uses compatible measurement conditions', () => {
+  // Comparing under divergent assistance conditions raises notice
+  const divergent = comparePeople('person-elena-rostova', 'person-marcus-vance', 'independent', 'assisted');
+  assert.equal(divergent.isModeCompatible, false);
+  assert.ok(divergent.compatibilityNotice.includes('Assistance Condition Divergence'));
+
+  // Comparing under identical conditions is compatible
+  const compatible = comparePeople('person-elena-rostova', 'person-marcus-vance', 'independent', 'independent');
+  assert.equal(compatible.isModeCompatible, true);
+  assert.equal(compatible.compatibilityNotice, null);
+});
+
+test('rule 7: trajectories calculate consistently', () => {
+  // Kwame Mensah is the fastest climber with +112 YoY
+  const kwame = personById('person-kwame-mensah');
+  assert.equal(kwame.trajectory.yoyDelta, 112);
+  assert.equal(kwame.trajectory.velocityRank, 1);
+
+  // Leaderboard sorted by velocity has Kwame at rank 1
+  const sorted = getLeaderboard('independent', 'world', 'velocity');
+  assert.equal(sorted[0].person.id, 'person-kwame-mensah');
+  assert.ok(sorted[0].yoyDelta >= sorted[1].yoyDelta);
+});
+
+test('rule 8: composite scores decompose correctly', () => {
+  const elena = personById('person-elena-rostova');
+  const decomp = computeBecomingIndex(elena.capabilities, 'independent');
+  assert.ok(decomp.dimensions.length === 6);
+
+  // Verify that average of dimension points equals composite index
+  const sumPoints = decomp.dimensions.reduce((sum, d) => sum + d.indexContribution, 0);
+  const expectedIndex = Math.round(sumPoints / decomp.dimensions.length);
+  assert.equal(decomp.index, expectedIndex);
+});
+
+test('rule 9: low scores are displayed directly rather than replaced with euphemistic tiers', () => {
+  const devin = personById('person-devin-vance');
+  assert.ok(devin);
+  const opp = getOpportunitySurface(devin.capabilities.independent.systems, 18, 'Software Engineering', devin.primaryGap);
+  assert.equal(opp.percentile, 18);
+  // Must say "18th percentile" directly without euphemistic tier name
+  assert.ok(opp.message.startsWith('18th percentile'));
+  assert.ok(opp.message.includes('Most comparable participants currently demonstrate stronger performance here'));
+  assert.ok(!opp.message.includes('Explorer Tier'));
+  assert.ok(!opp.message.includes('Master Tier'));
+});
+
+test('rule 10: human neighborhood identifies immediate neighbors and next percentile threshold', () => {
+  const n = getNeighborhood('person-elena-rostova', 'composite', 'independent', 'world');
+  assert.ok(n.target);
+  assert.ok(n.nextThreshold);
+  assert.ok(n.attainableSteps.length > 0);
+  assert.ok(typeof n.nextThreshold.gapPoints === 'number');
+});
+
+test('rule 11: head-to-head comparison identifies leading dimensions without psychological inferences', () => {
+  const cmp = comparePeople('person-elena-rostova', 'person-marcus-vance', 'independent', 'independent');
+  assert.ok(cmp.dimensionsALeads.some(d => d.skill.id === 'systems'));
+  assert.ok(cmp.dimensionsBLeads.some(d => d.skill.id === 'story'));
+  assert.ok(cmp.gapExplanation.includes('Systems architecture'));
+  assert.ok(cmp.gapExplanation.includes('Executive storytelling'));
+  assert.ok(cmp.gapExplanation.includes('Neither profile demonstrates psychological attributes'));
+});
+
+test('rule 12: pattern discovery finds distinguishing skills and rare combinations', () => {
+  const patterns = discoverPatterns(syntheticPeople, 'independent');
+  assert.ok(patterns.skillGaps.length === 6);
+  assert.ok(patterns.topDifferentiatingSkill);
+  assert.ok(patterns.rareCombinations.length > 0);
+  assert.ok(patterns.fastClimbers.length > 0);
+});
+
+test('rule 13: future adult-life domains are distinguished from supported measurements', () => {
+  assert.ok(futureDomains.length >= 3);
+  for (const fd of futureDomains) {
+    assert.equal(fd.supported, false);
+    assert.equal(fd.status, 'future_domain');
+    assert.equal(isDimensionSupported(fd.id), false);
+  }
+  assert.equal(isDimensionSupported('systems'), true);
+});
+
+test('rule 14: cohort representativeness disclaimer is truthful', () => {
+  const discGlobal = cohortDisclaimer('global');
+  assert.ok(discGlobal.includes('verified participants'));
+  assert.ok(discGlobal.includes('not a national census'));
+
+  const discWithheld = cohortDisclaimer('circle');
+  assert.ok(discWithheld.includes('Withheld'));
+  assert.ok(discWithheld.includes('Small cohorts are suppressed'));
+});

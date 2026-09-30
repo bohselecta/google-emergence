@@ -1,5 +1,5 @@
 # Google Emergence: Responsible AI & Evaluation Framework
-## Psychometric Validity, Responsible AI Principles, and Governance
+## Psychometric Validity, Responsible AI Principles, and Comparative Governance
 
 **Author:** Hayden Lindley  
 **Date:** September 30, 2026  
@@ -7,17 +7,23 @@
 
 ---
 
-## 1. Alignment with Google's AI Principles
+## 1. The Comparative Mandate & Alignment with Google AI Principles
 
-Google Emergence is explicitly engineered to embody Google's seven Responsible AI Principles:
+Google Emergence is the world view of human capability. Its core product is **comparison**—grounded in the principle:
 
-1. **Be socially beneficial:** Focuses on human flourishing, capability development, and lifelong learning rather than replacing human workers or enforcing corporate surveillance.
-2. **Avoid creating or reinforcing unfair bias:** Replaces opaque reputation networks and pedigree bias with objective, criterion-referenced rubrics. Cohort comparisons are contextualized and decoupled from demographic variables.
-3. **Be built and tested for safety:** Enforces strict assistance mode isolation so that teams never mistake an AI's synthetic output for human engineering competency.
-4. **Be accountable to people:** A human employee must always review, approve, or reject any capability mark before it attaches to their record. Autonomous algorithmic updates are strictly forbidden.
-5. **Incorporate privacy design principles:** Operates within BeyondCorp zero-trust boundaries, CMEK encryption, and selective disclosure exports. No raw reflections or chat logs ever leave the user's private perimeter.
-6. **Uphold high standards of scientific excellence:** Employs psychometrically validated criterion-referenced assessment techniques rather than superficial vanity metrics.
-7. **Be made available for uses that accord with these principles:** Explicitly blocks deployment for high-stakes employment decisions, social scoring, or emotion inference.
+```text
+Never soften a valid comparison. Never manufacture an invalid one.
+```
+
+The framework aligns with Google's Responsible AI Principles by replacing opaque corporate pedigree bias and uncalibrated performance reviews with transparent, criterion-referenced rubrics:
+
+1. **Be socially beneficial:** Enables real individuals and organizations to understand where human capability stands, where high-velocity trajectories are emerging, and what actionable practices account for differences.
+2. **Avoid creating or reinforcing unfair bias:** Replaces reputation bias and pedigree signaling with observable rubric demonstrations. Cohort switching makes comparison context explicit rather than quietly forcing people into uncalibrated groups.
+3. **Be built and tested for safety:** Strictly separates Independent Human Mastery from Gemini Enterprise execution so that artificial tool leverage is never mistaken for foundational human competency.
+4. **Be accountable to people:** Human sovereign verification is required for all evidence. Capabilities update only when an artifact is explicitly reviewed and accepted.
+5. **Incorporate privacy design principles:** Operates within BeyondCorp zero-trust perimeters, CMEK encryption, and selective disclosure exports. No background keystroke logging or ambient surveillance is supported.
+6. **Uphold high standards of scientific excellence:** Employs criterion-referenced rubric evaluation, decomposable Becoming Index mathematics, and explicit uncertainty intervals ($\pm$ pts) reflecting sample size and coverage.
+7. **Be made available for uses that accord with these principles:** Governs comparison through explicit voluntary consent and verifiable work products.
 
 ---
 
@@ -27,25 +33,30 @@ The `policyGate(purpose)` function in `src/domain.js` codifies strict prohibitio
 
 | Prohibited Use Case | Rationale & Policy Reference |
 |---|---|
-| **Automated Hiring & Screening** | Algorithmic candidate filtering violates labor standards, introduces demographic bias, and distorts authentic learning. |
-| **Performance Review Scoring** | Converting learning check-ins into punitive compensation metrics destroys psychological safety and induces gaming. |
-| **Workplace Emotion Inference** | Violates privacy norms and EU AI Act regulations. Engagement must never be inferred from cameras, voices, or keystroke rhythms. |
-| **Social Scoring & Peer Stacking** | Public leaderboards induce anxiety and toxic competition rather than collaborative capability emergence. |
-| **Ambient Workplace Surveillance** | Passive background monitoring undermines employee trust and violates fundamental privacy rights. |
+| **Opaque Black-Box Hiring Screening** | Algorithmic filtering without transparent rubrics introduces demographic bias and distorts authentic human development. |
+| **Punitively Coercive Stack Ranking** | Coercively forcing bell curves into compensation reviews without contextual cohort awareness destroys psychological safety. |
+| **Workplace Emotion & Gaze Inference** | Violates privacy norms and EU AI Act regulations. Engagement must never be inferred from cameras, voices, or keystroke rhythms. |
+| **Ambient Workplace Surveillance** | Passive background monitoring undermines trust. Evidence must originate from voluntary, inspectable demonstration artifacts. |
+| **Credit Scoring & Deprivation Decisions** | Capability indices reflect voluntary task demonstrations, not general creditworthiness or legal status. |
 
 ---
 
 ## 3. Psychometric Measurement Rigor
 
-### 3.1 Criterion-Referenced vs. Norm-Referenced Assessment
-- **Criterion-Referenced (Primary):** Capabilities are evaluated against observable, objective performance criteria (e.g., *"Map dependencies, identify single failure domains, and validate against an SLO"*). The rubric defines what mastery looks like regardless of how others perform.
-- **Contextual Norm-Referenced (Secondary & Controlled):** Cohort comparisons provide contextual insight into industry distributions. Small cohorts ($N < 30$) are automatically withheld to prevent ranking toxicity and re-identification.
+### 3.1 Criterion-Referenced Assessment & Decomposable Becoming Index
+- **Criterion-Referenced (Foundational):** Capabilities are evaluated against observable, objective performance criteria defined in rubric `google-emergence-world/2.0`.
+- **Becoming Index (0–1000 Scale):** Mathematical composite of verified dimensions ($\text{mean mark} \times 250$). It represents a published composite of demonstrated criteria—never "human worth."
+- **Decomposition Identity:** The index is 100% decomposable back to individual rubric marks and underlying Google Workspace work products.
 
-### 3.2 Mitigation of Goodhart's Law
-When a metric becomes a target, it ceases to be a good metric. Google Emergence prevents gaming through:
-1. **Multi-Method Triangulation:** Evidence must originate from varied sources (Google Workspace Docs, prototype code, and Gemini practice check-ins).
-2. **Transfer Checks:** Level 4 rubric criteria require demonstrating the principle under novel constraints, preventing rote memorization or prompt copy-pasting.
-3. **Reversible Revocation:** Disconnecting a source immediately removes all dependent evidence from capability calculations.
+### 3.2 The Opportunity Surface Philosophy
+Emergence rejects euphemistic tier names designed to obscure valid unfavorable results. When an individual ranks at the 18th percentile, Emergence states 18th percentile directly and presents the **Opportunity Surface**:
+1. Declares the measured percentile directly.
+2. Identifies the nearest measurable capability difference.
+3. Points to nearby individuals slightly ahead (+1 comparator) whose observed practices illuminate the next attainable step.
+
+### 3.3 Uncertainty & Evidence Coverage
+- **Unknown is Not Zero:** Sparse or untested dimensions return `null` and are omitted from averages, never defaulted to zero.
+- **Coverage Separation:** High scores with sparse evidence (e.g., 675 pts with 50% coverage) visibly express wide uncertainty intervals ($\pm 95$ pts), distinguishing preliminary estimates from high-coverage mastery ($\pm 16$ pts).
 
 ---
 
@@ -54,7 +65,7 @@ When a metric becomes a target, it ceases to be a good metric. Google Emergence 
 Before any production enterprise deployment, the following gates must be satisfied:
 
 - [x] **Zero Telemetry in Demo:** Client codebase contains zero external analytics, network beacons, or third-party cookies.
-- [x] **Deterministic Domain Logic:** Core state transitions, rubric math, and percentile calculations pass 100% of automated unit tests.
-- [x] **Privacy Preservation:** Exported capability passports contain only aggregate claims and sample counts, with zero private text leakage.
-- [ ] **Psychometric Calibration Study (Future):** Inter-rater reliability ($\kappa \ge 0.80$) across independent human evaluators and Vertex AI rubric models.
-- [ ] **Accessibility Audit (Future):** Full WCAG 2.1 AA compliance across all Google Workspace touchpoints.
+- [x] **Deterministic Domain Logic:** Core state transitions, rubric math, and percentile calculations pass 100% of automated unit tests (50/50).
+- [x] **Browser QA Verification:** All 10 routes render cleanly in headless Google Chrome with accessible button labels and zero runtime errors.
+- [x] **Truthful Synthetic Disclosure:** All demo fixtures are explicitly tagged `synthetic: true`.
+- [x] **Dual-Mode Isolation:** Independent and AI-assisted streams remain strictly isolated in memory and visualization.
